@@ -57,7 +57,14 @@ jobs:
 
       - name: Run tests
         working-directory: backend
-        run: uv run pytest
+        run: uv run pytest --junitxml=test-report.xml
+
+      - name: Upload backend test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: backend/test-report.xml
 
   test-frontend:
     runs-on: ubuntu-24.04
@@ -76,7 +83,14 @@ jobs:
 
       - name: Run tests
         working-directory: frontend
-        run: npm run test:ci
+        run: npm run test:ci -- --reporter=junit --outputFile=test-report.xml
+
+      - name: Upload frontend test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-report
+          path: frontend/test-report.xml
 
   security:
     runs-on: ubuntu-24.04
