@@ -108,6 +108,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate Trivy report
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: json
+          output: trivy-report.json
+          exit-code: '0'
+
+      - name: Upload Trivy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
+
+      - name: Upload VEX file
+        uses: actions/upload-artifact@v4
+        with:
+          name: vex-file
+          path: vex.openvex.json
+
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
@@ -115,6 +137,7 @@ jobs:
           scan-ref: .
           severity: HIGH,CRITICAL
           exit-code: '1'
+          vex: vex.openvex.json
 
   build-push:
     needs: [lint, test-backend, test-frontend, security]
